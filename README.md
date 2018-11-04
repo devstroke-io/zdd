@@ -23,8 +23,7 @@ pip install https://github.com/devstroke-io/zdd/archive/master.zip
 ### Download binary
 
 ```sh
-sudo curl https://github.com/devstroke-io/zdd/releases/download/1.0.0/zdd-linux-x64 -o /usr/bin/zdd
-sudo chmod u+x /usr/bin/zdd
+sudo sh -c 'curl -L https://github.com/devstroke-io/zdd/releases/download/0.1.0/zdd-linux-x64 -o /usr/bin/zdd && chmod u+x /usr/bin/zdd'
 ```
 
 ## Configuration
