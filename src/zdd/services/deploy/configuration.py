@@ -1,3 +1,5 @@
+import collections
+
 from ...services.logger import Logger
 
 
@@ -8,7 +10,8 @@ class Configuration:
     }
     _logger: Logger = Logger.get('main.zdd.configuration')
 
-    def __init__(self, active: bool = False, docker_image: str = None, docker_params: dict = None):
+    def __init__(self, active: bool = False, docker_image: str = None,
+                 docker_params: dict = None):
         self.active = active
         self.docker_image = docker_image
         self.docker_params = docker_params
@@ -30,5 +33,11 @@ class Configuration:
         if f'instance_{instance}' in self.docker_params:
             params = params.copy()
             params.update(self.docker_params[f'instance_{instance}'])
+        # trick for ports tuple
+        if 'ports' in params:
+            for port_from in params['ports']:
+                if isinstance(params['ports'][port_from], collections.Mapping):
+                    params['ports'][port_from] = list(
+                        params['ports'][port_from].items())
         self._logger.debug(params)
         return params
