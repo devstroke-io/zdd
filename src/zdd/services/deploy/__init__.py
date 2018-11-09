@@ -85,7 +85,11 @@ class Deploy:
         if container:
             self._logger.info(f"Stop {container_name} instance...")
             container.stop()
-            self._logger.info(f"{container_name} instance stopped")
+            if self.__check_instance_dead(instance, count=5):
+                self._logger.info(f"{container_name} instance stopped")
+            else:
+                self._logger.critical(f"Cannot stop container {container_name}")
+                sys.exit(130)
         # run instance
         self._logger.info(f"Start {container_name} instance...")
         try:
@@ -97,9 +101,21 @@ class Deploy:
             self._logger.info(f"{container_name} instance running")
         except APIError as e:
             self._logger.critical(f"Fail to run {container_name} with {str(e)}")
-            sys.exit(130)
+            sys.exit(131)
         # @TODO(damien): Check if instance is really up (request :port ?)
         sleep(1)
+
+    def __check_instance_dead(self, instance, count=5):
+        container_name = f'{self._project}_{instance}'
+        try:
+            for x in range(0, count):
+                self._logger.debug(f"Check if container {container_name} instance is dead...")
+                self._client.containers.get(container_name)
+                sleep(1)
+            return False
+        except NotFound:
+            self._logger.debug(f"Container {container_name} instance is dead")
+            return True
 
     def __fetch_config(self) -> dict:
         """Get and decode JSON configuration file content
